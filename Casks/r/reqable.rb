@@ -11,6 +11,22 @@ cask "reqable" do
   desc "Advanced API Debugging Proxy"
   homepage "https://reqable.com/"
 
+  livecheck do
+    url :url
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+    strategy :github_releases do |json, regex|
+      json.map do |release|
+        match = release["body"]&.match(/(?!macos)/i)
+        next if match.blank?
+
+        version = release["name"]&.match(regex)
+        next if version.blank?
+
+        version[1]
+      end.flatten
+    end
+  end
+
   auto_updates true
 
   app "Reqable.app"
